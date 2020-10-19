@@ -8,13 +8,12 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.*;
 
 public class ClassFileWriter {
 
-
     public static final String HANDLER_FIELD = "invocationwrapper$handler";
     public static final String HANDLER_FIELD_DESC = "L" + InvocationWrapper.class.getName().replace('.', '/') + ";";
-
 
     private static int idx = 0;
 
@@ -33,11 +32,20 @@ public class ClassFileWriter {
                 table.addOverride(ctor);
             }
         }
-        for (Method method : parent.getDeclaredMethods()) {
-            if ((Modifier.isPublic(method.getModifiers()) || Modifier.isProtected(method.getModifiers()))
-                    && !Modifier.isFinal(method.getModifiers()) && !Modifier.isStatic(method.getModifiers())) {
-                table.addOverride(method);
+
+        List<Method> overridden = new ArrayList<>();
+        Class<?> currentClass = parent;
+        while (currentClass != null) {
+            for (Method method : currentClass.getDeclaredMethods()) {
+                if (canOverride(method, overridden)) {
+                    if ((Modifier.isPublic(method.getModifiers()) || Modifier.isProtected(method.getModifiers()))
+                            && !Modifier.isFinal(method.getModifiers()) && !Modifier.isStatic(method.getModifiers())) {
+                        table.addOverride(method);
+                        overridden.add(method);
+                    }
+                }
             }
+            currentClass = currentClass.getSuperclass();
         }
 
         writeU4(out, 0xCAFEBABE);
@@ -80,5 +88,23 @@ public class ClassFileWriter {
 
     public static void writeU4(DataOutput out, int value) throws IOException {
         out.writeInt(value);
+    }
+
+    private static boolean canOverride(Method method, List<Method> alreadyOverridden) {
+        for (Method o : alreadyOverridden) {
+            if (!method.getName().equals(o.getName())) {
+                continue;
+            }
+            if (method.getParameterCount() != o.getParameterCount()) {
+                continue;
+            }
+            Class<?>[] classesM = method.getParameterTypes();
+            Class<?>[] classesO = method.getParameterTypes();
+            if (!Arrays.equals(method.getParameterTypes(), o.getParameterTypes())) {
+                continue;
+            }
+            return false;
+        }
+        return true;
     }
 }

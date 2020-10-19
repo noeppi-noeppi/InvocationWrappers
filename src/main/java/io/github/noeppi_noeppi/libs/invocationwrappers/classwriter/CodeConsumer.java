@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 @FunctionalInterface
 public interface CodeConsumer<T> {
 
-
     void accept(T t) throws IOException, ReflectiveOperationException;
 
     default CodeConsumer<T> andThen(CodeConsumer<? super T> after) {

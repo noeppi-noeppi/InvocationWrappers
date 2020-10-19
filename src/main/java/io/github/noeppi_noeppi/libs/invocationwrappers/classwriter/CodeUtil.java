@@ -54,7 +54,7 @@ public class CodeUtil {
                     // stack: handler
                     loadThis(code);
                     // stack: handler, this
-                    loadPool(code, pool.addClass(superClass));
+                    loadPool(code, pool.addClass(method.getDeclaringClass()));
                     // stack: handler, this, superClass
                     loadPool(code, pool.addJavaString(method.getName()));
                     // stack: handler, this, superClass, methodName
@@ -99,7 +99,7 @@ public class CodeUtil {
                     // stack: optional
                     invokeVirtual(code, pool.addMethod(Option.class.getMethod("isPresent")));
                     // stack: isPresent
-                    ifZero(code, 3 + 2 + 3 + 3 + 3/* + 3*/ + 1); // ifZero + loadLocalNoParam + invokeVirtual + checkCast + unbox + checkCast + finish
+                    ifZero(code, 3 + 2 + 3 + 3 + 3 + 1); // ifZero + loadLocalNoParam + invokeVirtual + checkCast + unbox + checkCast + finish
 
                     // stack:
                     loadLocalNoParam(code, true, classes, Option.class, 0);
@@ -109,8 +109,6 @@ public class CodeUtil {
                     checkCast(code, pool.addClass(boxed(method.getReturnType(), false)));
                     // stack: result
                     unbox(code, pool, method.getReturnType());
-                    // stack: result
-                    //checkCast(code, pool.addClass(method.getReturnType()));
                     // stack: result
                     finish(code, method.getReturnType());
 

@@ -49,6 +49,11 @@ public class MethodTable {
 
         int modifiers = method.getModifiers();
         modifiers &= ~Modifier.ABSTRACT;
+        modifiers &= ~Modifier.NATIVE;
+        modifiers &= ~Modifier.FINAL;
+        modifiers &= ~Modifier.PRIVATE;
+        if (!Modifier.isPublic(modifiers))
+            modifiers |= Modifier.PROTECTED;
 
         writeU2(this.out, modifiers);
         writeU2(this.out, nameRef);
