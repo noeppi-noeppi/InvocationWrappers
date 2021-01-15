@@ -19,8 +19,8 @@ public class ClassFileWriter {
 
     private static int idx = 0;
 
-    public static void write(DataOutput out, Class<?> parent) throws IOException, ReflectiveOperationException {
-        String className = "invocationwrappers.Synthetic$" + (idx++);
+    public static void write(DataOutput out, Class<?> parent, Package destination) throws IOException, ReflectiveOperationException {
+        String className = destination.getName() + "._$InvocationWrappersSynthetic$" + (idx++);
 
         ConstantPool pool = new ConstantPool();
         pool.addCompileClass(className);
@@ -40,11 +40,8 @@ public class ClassFileWriter {
         while (currentClass != null) {
             for (Method method : currentClass.getDeclaredMethods()) {
                 if (canOverride(method, overridden)) {
-                    if ((Modifier.isPublic(method.getModifiers()) || Modifier.isProtected(method.getModifiers()))
-                            && !Modifier.isFinal(method.getModifiers()) && !Modifier.isStatic(method.getModifiers())) {
-                        table.addOverride(method);
-                        overridden.add(method);
-                    }
+                    table.addOverride(method);
+                    overridden.add(method);
                 }
             }
             currentClass = currentClass.getSuperclass();
@@ -93,6 +90,13 @@ public class ClassFileWriter {
     }
 
     private static boolean canOverride(Method method, List<Method> alreadyOverridden) {
+        int modifiers = method.getModifiers();
+        if (Modifier.isPrivate(modifiers)) {
+            return false;
+        }
+        if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)) {
+            return false;
+        }
         for (Method o : alreadyOverridden) {
             if (!method.getName().equals(o.getName())) {
                 continue;

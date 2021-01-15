@@ -9,13 +9,19 @@ import java.lang.reflect.Method;
 
 public class InvocationWrappers {
 
-    // You should use AccessTransformer first to get access to private methods and remove final flag for example.
     // The new class will have all constructors the wrapped class has but every constructor has an InvocationWrapper
     // added as first argument.
     public static <T> Class<? extends T> createWrapped(Class<T> clazz) throws IOException, ReflectiveOperationException {
+        return createWrapped(clazz, clazz.getPackage());
+    }
+    
+    // This version allows for a custom destination package to be set to allow overriding of more methods that may
+    // be package private. The default is the package of the superclass. This allows to overridepackage private
+    // methods from the super class but not from the superclass of the superclass...
+    public static <T> Class<? extends T> createWrapped(Class<T> clazz, Package destination) throws IOException, ReflectiveOperationException {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(bout);
-        ClassFileWriter.write(out, clazz);
+        ClassFileWriter.write(out, clazz, destination);
         out.close();
         bout.close();
 
