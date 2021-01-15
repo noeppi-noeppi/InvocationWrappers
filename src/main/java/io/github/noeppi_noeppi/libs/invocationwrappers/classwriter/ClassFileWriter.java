@@ -39,7 +39,7 @@ public class ClassFileWriter {
         Class<?> currentClass = parent;
         while (currentClass != null) {
             for (Method method : currentClass.getDeclaredMethods()) {
-                if (canOverride(method, overridden)) {
+                if (canOverride(method, overridden, destinationPackage)) {
                     table.addOverride(method);
                     overridden.add(method);
                 }
@@ -89,9 +89,13 @@ public class ClassFileWriter {
         out.writeInt(value);
     }
 
-    private static boolean canOverride(Method method, List<Method> alreadyOverridden) {
+    private static boolean canOverride(Method method, List<Method> alreadyOverridden, String destinationPackage) {
         int modifiers = method.getModifiers();
         if (Modifier.isPrivate(modifiers)) {
+            return false;
+        }
+        if (!Modifier.isPublic(modifiers) && !Modifier.isProtected(modifiers)
+                && !method.getDeclaringClass().getPackage().getName().equals(destinationPackage)) {
             return false;
         }
         if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)) {
