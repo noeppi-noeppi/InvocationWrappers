@@ -104,7 +104,7 @@ public class CodeUtil {
                     // stack: optional
                     invokeVirtual(code, pool.addMethod(Option.class.getMethod("get")));
                     // stack: result
-                    checkCast(code, pool.addClass(boxed(method.getReturnType(), false)));
+                    checkCast(code, pool.addClass(boxed(method.getReturnType(), true)));
                     // stack: result
                     unbox(code, pool, method.getReturnType());
                     // stack: result
