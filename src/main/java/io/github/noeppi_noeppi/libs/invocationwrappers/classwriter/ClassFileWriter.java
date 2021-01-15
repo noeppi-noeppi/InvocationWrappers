@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ClassFileWriter {
 
@@ -98,8 +100,6 @@ public class ClassFileWriter {
             if (method.getParameterCount() != o.getParameterCount()) {
                 continue;
             }
-            Class<?>[] classesM = method.getParameterTypes();
-            Class<?>[] classesO = method.getParameterTypes();
             if (!Arrays.equals(method.getParameterTypes(), o.getParameterTypes())) {
                 continue;
             }

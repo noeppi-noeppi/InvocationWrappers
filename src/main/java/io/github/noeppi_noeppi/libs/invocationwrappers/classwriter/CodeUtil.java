@@ -10,9 +10,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import static io.github.noeppi_noeppi.libs.invocationwrappers.classwriter.ClassFileWriter.writeU1;
-import static io.github.noeppi_noeppi.libs.invocationwrappers.classwriter.ClassFileWriter.writeU2;
-import static io.github.noeppi_noeppi.libs.invocationwrappers.classwriter.ClassFileWriter.writeU4;
+import static io.github.noeppi_noeppi.libs.invocationwrappers.classwriter.ClassFileWriter.*;
 
 public class CodeUtil {
 
@@ -43,7 +41,7 @@ public class CodeUtil {
 
     public static void writeMethodCode(DataOutput out, ConstantPool pool, String className, Class<?> superClass, Method method) throws IOException, ReflectiveOperationException {
         writeCode(out, pool,
-               Math.max(stackSize(true, method.getParameterTypes()), 8),
+                Math.max(stackSize(true, method.getParameterTypes()), 8),
                 stackSize(true, method.getParameterTypes()) + stackSize(Option.class),
                 code -> {
                     Class<?>[] classes = method.getParameterTypes();
@@ -67,7 +65,7 @@ public class CodeUtil {
                         // stack: handler, this, superClass, methodName, paramTypes, paramTypes
                         loadPool(code, pool.addJavaInt(i));
                         // stack: handler, this, superClass, methodName, paramTypes, paramTypes, i
-                        loadPool(code, pool.addClass(classes[i]));
+                        loadClass(code, pool, classes[i]);
                         // stack: handler, this, superClass, methodName, paramTypes, paramTypes, i, classes[i]
                         putArray(code);
                         // stack: handler, this, superClass, methodName, paramTypes
@@ -316,6 +314,11 @@ public class CodeUtil {
         out.writeShort(ref);
     }
 
+    public static void loadStaticField(DataOutput out, int ref) throws IOException {
+        out.write(178); // getstatic
+        out.writeShort(ref);
+    }
+
     public static void loadPool(DataOutput out, int ref) throws IOException {
         out.write(19); // ldc_w
         out.writeShort(ref);
@@ -432,6 +435,17 @@ public class CodeUtil {
             return Void.class;
         } else {
             return clazz;
+        }
+    }
+
+    public static void loadClass(DataOutput out, ConstantPool pool, Class<?> clazz) throws IOException {
+        if (boolean.class.equals(clazz) || byte.class.equals(clazz) || char.class.equals(clazz) || short.class.equals(clazz)
+                || int.class.equals(clazz) || long.class.equals(clazz) || float.class.equals(clazz) || double.class.equals(clazz)
+                || void.class.equals(clazz)) {
+            System.out.println(boxed(clazz, true));
+            loadStaticField(out, pool.addField(boxed(clazz, true), "TYPE", "L" + Class.class.getName().replace('.', '/') + ";"));
+        } else {
+            loadPool(out, pool.addClass(clazz));
         }
     }
 }

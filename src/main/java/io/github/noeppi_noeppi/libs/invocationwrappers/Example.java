@@ -15,6 +15,7 @@ public class Example {
 
         System.out.println(date);
         System.out.println(date.getTime());
+        //noinspection UnusedAssignment
         date = null;
         System.gc(); // Call finalize
     }
@@ -33,11 +34,11 @@ public class Example {
             } else if (Date.class.getDeclaredMethod("getTimeImpl").equals(method)) {
                 // This will never get called as we can not override private and/or final methods.
                 System.out.println("getTimeImpl was called. Returning 42");
-                return Option.of(42l);
+                return Option.of(42L);
             } else if (Date.class.getDeclaredMethod("getTime").equals(method)) {
                 // This however will work as the method is public and not final.
                 System.out.println("getTime was called. Returning 42");
-                return Option.of(42l);
+                return Option.of(42L);
             } else {
                 return Option.empty(); // Call the super method
             }

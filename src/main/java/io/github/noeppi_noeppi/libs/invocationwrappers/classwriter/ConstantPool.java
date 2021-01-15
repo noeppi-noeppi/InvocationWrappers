@@ -11,9 +11,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.github.noeppi_noeppi.libs.invocationwrappers.classwriter.ClassFileWriter.writeU1;
-import static io.github.noeppi_noeppi.libs.invocationwrappers.classwriter.ClassFileWriter.writeU2;
-import static io.github.noeppi_noeppi.libs.invocationwrappers.classwriter.ClassFileWriter.writeU4;
+import static io.github.noeppi_noeppi.libs.invocationwrappers.classwriter.ClassFileWriter.*;
 
 public class ConstantPool {
 
@@ -63,14 +61,14 @@ public class ConstantPool {
     }
 
     private int addField(int classRef, String name, String desc) throws IOException {
-        if (this.fieldMap.containsKey(name + "(" + desc + ")")) {
-            return this.fieldMap.get(name + "(" + desc + ")");
+        if (this.fieldMap.containsKey(classRef + "@" + name + "(" + desc + ")")) {
+            return this.fieldMap.get(classRef + "@" + name + "(" + desc + ")");
         } else {
             int typeRef = this.addNameAndType(name, desc);
             writeU1(this.out, ConstantPoolType.CP_FIELDREF);
             writeU2(this.out, classRef);
             writeU2(this.out, typeRef);
-            this.fieldMap.put(name + "(" + desc + ")", this.size);
+            this.fieldMap.put(classRef + "@" + name + "(" + desc + ")", this.size);
             return this.size++;
         }
     }
