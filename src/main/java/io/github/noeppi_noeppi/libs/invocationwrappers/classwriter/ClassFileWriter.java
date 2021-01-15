@@ -19,8 +19,8 @@ public class ClassFileWriter {
 
     private static int idx = 0;
 
-    public static void write(DataOutput out, Class<?> parent, Package destination) throws IOException, ReflectiveOperationException {
-        String className = destination.getName() + "._$InvocationWrappersSynthetic$" + (idx++);
+    public static void write(DataOutput out, Class<?> parent, String destinationPackage) throws IOException, ReflectiveOperationException {
+        String className = destinationPackage + "._$InvocationWrappersSynthetic$" + (idx++);
 
         ConstantPool pool = new ConstantPool();
         pool.addCompileClass(className);
